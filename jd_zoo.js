@@ -31,40 +31,9 @@ const pKHelpAuthorFlag = true;//是否助力作者PK  true 助力，false 不助
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [];
 $.cookie = '';
-$.inviteList = [{ ues: 'jd_441027f2a1e0d', secretp: 'ujWhAqRs5O3UsrbpmM7ZUBXR0Hk', inviteId: 'ZXTKT0225KkcRBoY9VbQdhillaIKIAFjRWn6-7zx55awQ', max: false
-},{
-  ues: 'niujie678',
-  secretp: 'vjiLXPk44ujbqPj01Q',
-  inviteId: 'ZXTKT0124KQ2GkdM81PfFjRWn6-7zx55awQ',
-  max: false
-},{
-  ues: 'wdwMJcEGPKgMlq',
-  secretp: 'pzWJe9o-kZizn-PFxdqVSJex',
-  inviteId: 'ZXTKT019-ak0PWRKgCO3W02JyLYFjRWn6-7zx55awQ',
-  max: false
-},{
-  ues: 'wdovJvWPLhUUqC',
-  secretp: 'pzWRQNorg4-vvNHd2OiVSP97',
-  inviteId: 'ZXTKT019-aksBmRfkjSreH-R1YQFjRWn6-7zx55awQ',
-  max: false
-},{
-  ues: 'wdfxtlDMXHbaHu',
-  secretp: 'pzWYTuQxkJK7nObp4d6VSA2E',
-  inviteId: 'ZXTKT019-aklCFpFgSm_WEil7LIFjRWn6-7zx55awQ',
-  max: false
-},{
-  ues: 'hajiuhajiu2067',
-  secretp: 'uDCUX-U1tbWKoba4n5yVSPth',
-  inviteId: 'ZXTKT0195qwpGVtBpA6OZRj0kvAFjRWn6-7zx55awQ',
-  max: false
-},{
-  ues: 'jd_MeIGpveNviIE',
-  secretp: 'ujWhe_UUk6-Vscr-wOKsSHnZ_Q',
-  inviteId: 'ZXTKT0205KkcPUtgghSRdWSyzY5_FjRWn6-7zx55awQ',
-  max: false
-}];
+$.inviteList = [];
 $.pkInviteList = [
-  '',
+  'aaaa',
 ];
 $.pkInviteListtotal = [];
 $.secretpInfo = {};
@@ -118,11 +87,11 @@ if ($.isNode()) {
     }
   }
   let res = [], res2 = [], res3 = [];
-  res3 = await getAuthorShareCode('https://raw.githubusercontent.com/1277002811/JDbot/master/shareCodes/pk.json');
-  if (!res3) await getAuthorShareCode('https://gitee.com/xr2021/share/raw/master/pk.json')
+  res3 = await getAuthorShareCode('https://gitee.com/xr2021/share/raw/master/pk1.json');
+  if (!res3) await getAuthorShareCode('https://raw.githubusercontent.com/1277002811/JDbot/master/shareCodes/pk.json')
   if (new Date().getUTCHours() + 8 >= 9) {
     res = await getAuthorShareCode() || [];
-    res2 = await getAuthorShareCode('https://gitee.com/xr2021/share/raw/master/pk.json') || [];
+    res2 = await getAuthorShareCode('https://gitee.com/xr2021/share/raw/master/pk1.json') || [];
   }
   if (pKHelpAuthorFlag) {
     $.innerPkInviteList = getRandomArrayElements([...$.innerPkInviteList, ...res, ...res2, ...res3], [...$.innerPkInviteList, ...res, ...res2, ...res3].length);
@@ -139,7 +108,7 @@ if ($.isNode()) {
     $.index = i + 1;
     //console.log($.inviteList);
     //pk助力
-    if (new Date().getUTCHours() + 8 >= 9) {
+    if (new Date().getHours() >= 1) {
       console.log(`\n******开始内部京东账号【怪兽大作战pk】助力*********\n`);
       for (let i = 0; i < $.pkInviteList.length && pKHelpFlag && $.canHelp; i++) {
         console.log(`${$.UserName} 去助力PK码 ${$.pkInviteList[i]}`);
@@ -238,7 +207,7 @@ async function zoo() {
             await $.wait(3000);
           }
         }
-      }else if ($.oneTask.taskType === 2 && $.oneTask.status === 1){
+      } else if ($.oneTask.taskType === 2 && $.oneTask.status === 1 && $.oneTask.scoreRuleVos[0].scoreRuleType === 2){
         console.log(`做任务：${$.oneTask.taskName};等待完成 (实际不会添加到购物车)`);
         $.taskId = $.oneTask.taskId;
         $.feedDetailInfo = {};
@@ -254,6 +223,25 @@ async function zoo() {
           await takePostRequest('add_car');
           await $.wait(1500);
           needTime --;
+        }
+      }else if ($.oneTask.taskType === 2 && $.oneTask.status === 1 && $.oneTask.scoreRuleVos[0].scoreRuleType === 0){
+        $.activityInfoList = $.oneTask.productInfoVos ;
+        for (let j = 0; j < $.activityInfoList.length; j++) {
+          $.oneActivityInfo = $.activityInfoList[j];
+          if ($.oneActivityInfo.status !== 1 || !$.oneActivityInfo.taskToken) {
+            continue;
+          }
+          $.callbackInfo = {};
+          console.log(`做任务：浏览${$.oneActivityInfo.skuName};等待完成`);
+          await takePostRequest('zoo_collectScore');
+          if ($.oneTask.taskType === 2) {
+            await $.wait(2000);
+            console.log(`任务完成`);
+          } else {
+            console.log($.callbackInfo);
+            console.log(`任务失败`);
+            await $.wait(3000);
+          }
         }
       }
     }
